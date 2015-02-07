@@ -1,0 +1,103 @@
+
+import array
+import random
+
+class My_DataStructure:
+    def __init__(self,size_max):
+        assert size_max > 0
+        self.max = size_max
+        self.head = 0
+        self.tail = 0
+        self.size = 0
+        self.data = array.array('i', range(size_max))
+
+    def my_empty(self):
+        return self.size == 0
+
+    def my_full(self):
+        return self.size == self.max
+
+    def my_enqueue(self,x):
+        if self.size == self.max:
+            return False
+        self.data[self.tail] = x
+        self.size += 1
+        self.tail += 1
+        if self.tail == self.max:
+            self.tail = 0
+        return True
+
+    def my_dequeue(self):
+        if self.size == 0:
+            return None
+        x = self.data[self.head]
+        self.size -= 1
+        self.head += 1
+        if self.head == self.max:
+            self.head = 0
+        return x
+
+    def my_checkRep(self):
+        assert self.tail >= 0
+        assert self.tail < self.max
+        assert self.head >= 0
+        assert self.head < self.max
+        if self.tail > self.head:
+            assert (self.tail-self.head) == self.size
+        if self.tail < self.head:
+            assert (self.head-self.tail) == (self.max-self.size)
+        if self.head == self.tail:
+            assert (self.size==0) or (self.size==self.max)
+
+# Write a random tester for the My_DataStructure class.
+def validate():
+    N = 4
+    add = 0
+    remove = 0
+    addFull = 0
+    removeEmpty = 0
+    q = My_DataStructure(N)
+    q.my_checkRep()
+    l = []      # l and q are always going to have the same contents
+    for i in range(10000):
+        if (random.random() < 0.5):
+            z = random.randint(0,1000000)
+            res = q.my_enqueue(z)
+            q.my_checkRep()
+            if res:
+                l.append(z)
+                add += 1
+            else:
+                assert len(l) == N
+                assert q.my_full()
+                q.my_checkRep()
+                addFull += 1
+        else:
+            dequeued = q.my_dequeue()
+            q.my_checkRep()
+            if dequeued is None:
+                assert len(l) == 0
+                assert q.my_empty()
+                q.my_checkRep()
+                removeEmpty += 1
+            else:
+                expected_value = l.pop(0)
+                assert dequeued == expected_value
+                remove += 1
+
+    while True:
+        res = q.my_dequeue()
+        q.my_checkRep()
+        if res is None:
+            break;
+        z = l.pop(0)
+        assert z == res
+    assert  len(l) == 0
+
+    print "adds: " + str(add)
+    print "adds to a my_full queue "+ str(addFull)
+    print "removes: " + str(remove)
+    print "removes from an my_empty queue: " + str(removeEmpty)
+    
+
+validate()
